@@ -47,7 +47,7 @@ function Login() {
               </label>
               <input
                 type="email"
-                placeholder="john@example.com"
+                placeholder="yash@gmail.com"
                 className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''}`} 
                 {...register('emailId')}
               />
@@ -63,7 +63,7 @@ function Login() {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder="Yash@123"
                   className={`input input-bordered w-full pr-10 ${errors.password ? 'input-error' : ''}`}
                   {...register('password')}
                 />
