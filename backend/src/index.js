@@ -12,7 +12,7 @@ const videoRouter = require("./routes/videoCreator");
 const cors = require('cors')
 
 app.use(cors({
-    origin:'https://zero-day-coder.netlify.app',  
+    origin:'https://zero-day-coder.vercel.app/',  
     credentials: true 
 }))
 
