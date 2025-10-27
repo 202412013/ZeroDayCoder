@@ -15,7 +15,7 @@ const cors = require('cors')
 
 app.use(cors({
     origin: [
-        'zero-day-coder.vercel.app',
+        process.env.FRONTEND_URL,
         'http://localhost:5173'
     ],
     credentials: true 
