@@ -11,34 +11,34 @@ const aiRouter = require("./routes/aiChatting")
 const videoRouter = require("./routes/videoCreator");
 const cors = require('cors')
 
-// console.log("Hello")
-
 app.use(cors({
-    origin: 'http://localhost:5173',
-        // process.env.FRONTEND_URL,   
+    origin: 'http://localhost:5173', 
+        // 'https://zero-day-coder.vercel.app', // Your frontend     
     credentials: true 
 }))
 
 app.use(express.json());
 app.use(cookieParser());
 
-app.get('/', (req, res) => {
+// Add /api prefix to all routes
+app.get('/api', (req, res) => {
     res.json({ message: 'Backend API is working!' });
 });
 
-app.use('/user',authRouter);
-app.use('/problem',problemRouter);
-app.use('/submission',submitRouter);
-app.use('/ai',aiRouter);
-app.use("/video",videoRouter);
+app.use('/api/user', authRouter);
+app.use('/api/problem', problemRouter);
+app.use('/api/submission', submitRouter);
+app.use('/api/ai', aiRouter);
+app.use("/api/video", videoRouter);
 
-
-
+// Health check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'OK', message: 'Server is running' });
+});
 
 const InitalizeConnection = async ()=>{
     try{
-
-        await Promise.all([main(),redisClient.connect()]);
+        await Promise.all([main(), redisClient.connect()]);
         console.log("DB Connected");
         
         if (process.env.NODE_ENV !== 'production') {
@@ -46,13 +46,11 @@ const InitalizeConnection = async ()=>{
                 console.log("Server listening at port number: " + process.env.PORT);
             });
         }
-
     }
     catch(err){
         console.log("Error: "+err);
     }
 }
-
 
 InitalizeConnection();
 
