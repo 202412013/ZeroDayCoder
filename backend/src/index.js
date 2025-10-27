@@ -19,8 +19,8 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-app.get('/api', (req, res) => {
-    res.json({ message: 'Backend API is working!' });
+app.get('/', (req, res) => {
+    res.json({ message: 'Backend is working!' });
 });
 
 app.use('/api/user', authRouter);
