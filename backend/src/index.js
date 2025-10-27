@@ -22,11 +22,17 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+app.get('/', (req, res) => {
+    res.json({ message: 'Backend API is working!' });
+});
+
 app.use('/user',authRouter);
 app.use('/problem',problemRouter);
 app.use('/submission',submitRouter);
 app.use('/ai',aiRouter);
 app.use("/video",videoRouter);
+
+
 
 
 const InitalizeConnection = async ()=>{
@@ -35,9 +41,11 @@ const InitalizeConnection = async ()=>{
         await Promise.all([main(),redisClient.connect()]);
         console.log("DB Connected");
         
-        app.listen(process.env.PORT, ()=>{
-            console.log("Server listening at port number: "+ process.env.PORT);
-        })
+        if (process.env.NODE_ENV !== 'production') {
+            app.listen(process.env.PORT, () => {
+                console.log("Server listening at port number: " + process.env.PORT);
+            });
+        }
 
     }
     catch(err){
@@ -48,3 +56,4 @@ const InitalizeConnection = async ()=>{
 
 InitalizeConnection();
 
+module.exports = app;
