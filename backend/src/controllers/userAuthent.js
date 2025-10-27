@@ -25,7 +25,13 @@ const register = async (req,res)=>{
         role:user.role,
     }
     
-     res.cookie('token',token,{maxAge: 60*60*1000});
+     res.cookie('token',token,{
+            maxAge: 60*60*1000,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            httpOnly: true
+        });
+        
      res.status(201).json({
         user:reply,
         message:"Loggin Successfully"
@@ -63,7 +69,12 @@ const login = async (req,res)=>{
         }
 
         const token =  jwt.sign({_id:user._id , emailId:emailId, role:user.role},process.env.JWT_KEY,{expiresIn: 60*60});
-        res.cookie('token',token,{maxAge: 60*60*1000});
+         res.cookie('token',token,{
+            maxAge: 60*60*1000,
+            secure: process.env.NODE_ENV === 'production', // true in production
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // cross-site in production
+            httpOnly: true
+        });
         res.status(201).json({
             user:reply,
             message:"Loggin Successfully"
