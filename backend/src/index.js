@@ -19,7 +19,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-// Add /api prefix to all routes
 app.get('/api', (req, res) => {
     res.json({ message: 'Backend API is working!' });
 });
@@ -30,10 +29,6 @@ app.use('/api/submission', submitRouter);
 app.use('/api/ai', aiRouter);
 app.use("/api/video", videoRouter);
 
-// Health check
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK', message: 'Server is running' });
-});
 
 const InitalizeConnection = async ()=>{
     try{
