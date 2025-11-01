@@ -1,15 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axiosClient from "../utils/axiosClient";
-import { Send } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 
-function ChatAi({problem}) {
+function ChatAi({ problem }) {
     const [messages, setMessages] = useState([
-        { role: 'model', parts:[{text: "Hi, How are you"}]},
-        { role: 'user', parts:[{text: "I am Good"}]}
+        { 
+            role: 'model', 
+            parts: [{ text: "Hello! I'm your DSA assistant. Ask me for hints, code review, or explanations about this problem." }]
+        }
     ]);
-
-    const { register, handleSubmit, reset,formState: {errors} } = useForm();
+    const [isLoading, setIsLoading] = useState(false);
+    
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -17,67 +20,101 @@ function ChatAi({problem}) {
     }, [messages]);
 
     const onSubmit = async (data) => {
-        
-        setMessages(prev => [...prev, { role: 'user', parts:[{text: data.message}] }]);
+        if (!data.message.trim() || isLoading) return;
+
+        const userMessage = { role: 'user', parts: [{ text: data.message.trim() }] };
+        setMessages(prev => [...prev, userMessage]);
         reset();
+        setIsLoading(true);
 
         try {
-            
             const response = await axiosClient.post("/ai/chat", {
-                messages:messages,
-                title:problem.title,
-                description:problem.description,
-                testCases: problem.visibleTestCases,
-                startCode:problem.startCode
+                messages: [...messages, userMessage],
+                title: problem?.title || "Coding Problem",
+                description: problem?.description || "",
+                testCases: problem?.visibleTestCases || "",
+                startCode: problem?.startCode || ""
             });
 
-           
-            setMessages(prev => [...prev, { 
-                role: 'model', 
-                parts:[{text: response.data.message}] 
-            }]);
+            if (response.data.success) {
+                setMessages(prev => [...prev, { 
+                    role: 'model', 
+                    parts: [{ text: response.data.message }] 
+                }]);
+            } else {
+                throw new Error(response.data.message);
+            }
         } catch (error) {
-            console.error("API Error:", error);
+            console.error("Chat Error:", error);
             setMessages(prev => [...prev, { 
                 role: 'model', 
-                parts:[{text: "Error from AI Chatbot"}]
+                parts: [{ text: "Sorry, I'm having trouble responding. Please try again in a moment." }]
             }]);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className="flex flex-col h-screen max-h-[80vh] min-h-[500px]">
+        <div className="flex flex-col h-full max-h-[80vh] min-h-[500px] bg-base-100 rounded-lg border">
+            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.map((msg, index) => (
                     <div 
                         key={index} 
-                        className={`chat ${msg.role === "user" ? "chat-end" : "chat-start"}`}
+                        className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                     >
-                        <div className="chat-bubble bg-base-200 text-base-content">
+                        <div 
+                            className={`max-w-[80%] px-4 py-2 rounded-lg ${
+                                msg.role === "user" 
+                                    ? "bg-blue-600 text-white" 
+                                    : "bg-gray-200 text-gray-800"
+                            }`}
+                        >
                             {msg.parts[0].text}
                         </div>
                     </div>
                 ))}
+                
+                {isLoading && (
+                    <div className="flex justify-start">
+                        <div className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg">
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                        </div>
+                    </div>
+                )}
+                
                 <div ref={messagesEndRef} />
             </div>
+
+            {/* Input Form */}
             <form 
                 onSubmit={handleSubmit(onSubmit)} 
-                className="sticky bottom-0 p-4 bg-base-100 border-t"
+                className="p-4 bg-base-200 border-t"
             >
-                <div className="flex items-center">
+                <div className="flex items-center gap-2">
                     <input 
-                        placeholder="Ask me anything" 
-                        className="input input-bordered flex-1" 
-                        {...register("message", { required: true, minLength: 2 })}
+                        type="text"
+                        placeholder="Ask for hints or code review..."
+                        className="input input-bordered flex-1"
+                        disabled={isLoading}
+                        {...register("message", { 
+                            required: "Message is required",
+                            minLength: { value: 2, message: "Message too short" },
+                            maxLength: { value: 500, message: "Message too long" }
+                        })}
                     />
                     <button 
                         type="submit" 
-                        className="btn btn-ghost ml-2"
-                        disabled={errors.message}
+                        disabled={isLoading || errors.message}
+                        className="btn btn-primary min-w-[50px]"
                     >
-                        <Send size={20} />
+                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send size={20} />}
                     </button>
                 </div>
+                {errors.message && (
+                    <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
+                )}
             </form>
         </div>
     );
