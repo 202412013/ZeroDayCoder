@@ -5,15 +5,23 @@ const solveDoubt = async(req , res)=>{
 
 
     try{
-
         const {messages,title,description,testCases,startCode} = req.body;
         console.log("Coming....................................");
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_KEY });
         console.log("Not Coming.................");
        
+        if (!process.env.GEMINI_KEY) {
+            console.error("GEMINI_KEY not found in environment variables");
+            return res.status(500).json({
+                message: "AI service configuration error"
+            });
+        }
+
+        
+
         async function main() {
         const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
+        model: "gemini-2.0-flash",
         contents: messages,
         config: {
         systemInstruction: `
@@ -83,6 +91,8 @@ You are an expert Data Structures and Algorithms (DSA) tutor specializing in hel
 - Promote best coding practices
 
 Remember: Your goal is to help users learn and understand DSA concepts through the lens of the current problem, not just to provide quick answers.
+Respond in 100 words max. Focus only on the user's specific question.
+Use bullet points and avoid long paragraphs.
 `},
     });
      
