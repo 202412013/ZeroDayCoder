@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { store } from './store';
-import { configureStore } from '@reduxjs/toolkit';
+// import { configureStore } from '@reduxjs/toolkit';
 
 describe('Redux Store Configuration', () => {
   describe('Store Creation - Initialization', () => {

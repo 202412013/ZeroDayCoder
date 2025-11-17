@@ -1,3 +1,13 @@
+beforeAll(() => {
+  jest.spyOn(console, 'log').mockImplementation(() => {});
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterAll(() => {
+  console.log.mockRestore();
+  console.error.mockRestore();
+});
+
 const { register, login, logout, adminRegister, deleteProfile } = require('./userAuthent');
 const User = require('../models/user');
 const validate = require('../utils/validator');
@@ -37,17 +47,17 @@ describe('User Authentication Controller', () => {
     describe('Happy Path - Successful Registration', () => {
       it('should register user with valid credentials', async () => {
         const userData = {
-          firstName: 'John',
-          emailId: 'john@example.com',
-          password: 'SecurePass123!'
+          firstName: 'Yash', // Changed to capital Y
+          emailId: 'yash@gmail.com',
+          password: 'Yash@1'
         };
 
         mockRequest.body = userData;
 
         const mockUser = {
-          _id: '123',
-          firstName: 'John',
-          emailId: 'john@example.com',
+          _id: '1',
+          firstName: 'Yash', // Capital Y
+          emailId: 'yash@gmail.com',
           role: 'user'
         };
 
@@ -59,19 +69,19 @@ describe('User Authentication Controller', () => {
         await register(mockRequest, mockResponse);
 
         expect(validate).toHaveBeenCalledWith(userData);
-        expect(bcrypt.hash).toHaveBeenCalledWith('SecurePass123!', 10);
+        expect(bcrypt.hash).toHaveBeenCalledWith('Yash@1', 10);
         expect(User.create).toHaveBeenCalledWith(
           expect.objectContaining({
-            firstName: 'John',
-            emailId: 'john@example.com',
+            firstName: 'Yash', // Capital Y
+            emailId: 'yash@gmail.com',
             role: 'user',
             password: 'hashed_password'
           })
         );
         expect(jwt.sign).toHaveBeenCalledWith(
           expect.objectContaining({
-            _id: '123',
-            emailId: 'john@example.com',
+            _id: '1',
+            emailId: 'yash@gmail.com',
             role: 'user'
           }),
           process.env.JWT_KEY,
@@ -80,9 +90,9 @@ describe('User Authentication Controller', () => {
         expect(mockResponse.status).toHaveBeenCalledWith(201);
         expect(mockResponse.json).toHaveBeenCalledWith({
           user: expect.objectContaining({
-            firstName: 'John',
-            emailId: 'john@example.com',
-            _id: '123'
+            firstName: 'Yash', // Capital Y
+            emailId: 'yash@gmail.com',
+            _id: '1'
           }),
           message: 'Loggin Successfully'
         });
@@ -90,15 +100,15 @@ describe('User Authentication Controller', () => {
 
       it('should set secure cookie after registration', async () => {
         mockRequest.body = {
-          firstName: 'John',
-          emailId: 'john@example.com',
-          password: 'SecurePass123!'
+          firstName: 'Yash', // Capital Y
+          emailId: 'yash@gmail.com',
+          password: 'Yash@1'
         };
 
         const mockUser = {
-          _id: '123',
-          firstName: 'John',
-          emailId: 'john@example.com',
+          _id: '1',
+          firstName: 'Yash', // Capital Y
+          emailId: 'yash@gmail.com',
           role: 'user'
         };
 
@@ -125,7 +135,7 @@ describe('User Authentication Controller', () => {
     describe('Exception Handling - Validation Errors', () => {
       it('should return error for invalid data', async () => {
         mockRequest.body = {
-          firstName: 'John'
+          firstName: 'Yash' // Capital Y
           // Missing email and password
         };
 
@@ -141,8 +151,8 @@ describe('User Authentication Controller', () => {
 
       it('should handle weak password error', async () => {
         mockRequest.body = {
-          firstName: 'John',
-          emailId: 'john@example.com',
+          firstName: 'Yash', // Capital Y
+          emailId: 'yash@gmail.com',
           password: 'weak'
         };
 
@@ -157,9 +167,9 @@ describe('User Authentication Controller', () => {
 
       it('should handle invalid email error', async () => {
         mockRequest.body = {
-          firstName: 'John',
+          firstName: 'Yash', // Capital Y
           emailId: 'invalid-email',
-          password: 'SecurePass123!'
+          password: 'Yash@1'
         };
 
         validate.mockImplementationOnce(() => {
@@ -175,9 +185,9 @@ describe('User Authentication Controller', () => {
     describe('Exception Handling - Database Errors', () => {
       it('should handle duplicate email error', async () => {
         mockRequest.body = {
-          firstName: 'John',
-          emailId: 'duplicate@example.com',
-          password: 'SecurePass123!'
+          firstName: 'Yash', // Capital Y
+          emailId: 'duplicate@gmail.com',
+          password: 'Yash@1'
         };
 
         validate.mockImplementation(() => {});
@@ -193,9 +203,9 @@ describe('User Authentication Controller', () => {
 
       it('should handle database connection error', async () => {
         mockRequest.body = {
-          firstName: 'John',
-          emailId: 'john@example.com',
-          password: 'SecurePass123!'
+          firstName: 'Yash', // Capital Y
+          emailId: 'yash@gmail.com',
+          password: 'Yash@1'
         };
 
         validate.mockImplementation(() => {});
@@ -215,14 +225,14 @@ describe('User Authentication Controller', () => {
     describe('Happy Path - Successful Login', () => {
       it('should login user with valid credentials', async () => {
         mockRequest.body = {
-          emailId: 'john@example.com',
-          password: 'SecurePass123!'
+          emailId: 'yash@gmail.com',
+          password: 'Yash@1'
         };
 
         const mockUser = {
-          _id: '123',
-          firstName: 'John',
-          emailId: 'john@example.com',
+          _id: '1',
+          firstName: 'Yash', // Capital Y
+          emailId: 'yash@gmail.com',
           password: 'hashed_password',
           role: 'user'
         };
@@ -234,17 +244,18 @@ describe('User Authentication Controller', () => {
         await login(mockRequest, mockResponse);
 
         expect(User.findOne).toHaveBeenCalledWith({
-          emailId: 'john@example.com'
+          emailId: 'yash@gmail.com'
         });
         expect(bcrypt.compare).toHaveBeenCalledWith(
-          'SecurePass123!',
+          'Yash@1',
           'hashed_password'
         );
         expect(mockResponse.status).toHaveBeenCalledWith(201);
         expect(mockResponse.json).toHaveBeenCalledWith(
           expect.objectContaining({
             user: expect.objectContaining({
-              emailId: 'john@example.com'
+              firstName: 'Yash', // Capital Y
+              emailId: 'yash@gmail.com'
             }),
             message: 'Loggin Successfully'
           })
@@ -255,7 +266,7 @@ describe('User Authentication Controller', () => {
     describe('Input Verification - Missing Credentials', () => {
       it('should reject login without email', async () => {
         mockRequest.body = {
-          password: 'SecurePass123!'
+          password: 'Yash@1'
         };
 
         await login(mockRequest, mockResponse);
@@ -265,7 +276,7 @@ describe('User Authentication Controller', () => {
 
       it('should reject login without password', async () => {
         mockRequest.body = {
-          emailId: 'john@example.com'
+          emailId: 'yash@gmail.com'
         };
 
         await login(mockRequest, mockResponse);
@@ -277,13 +288,13 @@ describe('User Authentication Controller', () => {
     describe('Exception Handling - Invalid Credentials', () => {
       it('should reject incorrect password', async () => {
         mockRequest.body = {
-          emailId: 'john@example.com',
-          password: 'WrongPassword123!'
+          emailId: 'yash@gmail.com',
+          password: 'WrongPassword1!'
         };
 
         const mockUser = {
-          _id: '123',
-          emailId: 'john@example.com',
+          _id: '1',
+          emailId: 'yash@gmail.com',
           password: 'hashed_password',
           role: 'user'
         };
@@ -298,17 +309,15 @@ describe('User Authentication Controller', () => {
 
       it('should reject non-existent user', async () => {
         mockRequest.body = {
-          emailId: 'nonexistent@example.com',
-          password: 'SecurePass123!'
+          emailId: 'nonexistent@gmail.com',
+          password: 'Yash@1'
         };
 
         User.findOne.mockResolvedValueOnce(null);
 
-        try {
-          await login(mockRequest, mockResponse);
-        } catch (e) {
-          expect(e).toBeDefined();
-        }
+        await login(mockRequest, mockResponse);
+
+        expect(mockResponse.status).toHaveBeenCalledWith(401);
       });
     });
   });
@@ -320,7 +329,7 @@ describe('User Authentication Controller', () => {
         mockRequest.cookies = { token };
 
         jwt.decode.mockReturnValueOnce({
-          _id: '123',
+          _id: '1',
           exp: Math.floor(Date.now() / 1000) + 3600
         });
 
@@ -352,8 +361,6 @@ describe('User Authentication Controller', () => {
       it('should handle missing token', async () => {
         mockRequest.cookies = {};
 
-        jwt.decode.mockReturnValueOnce(null);
-
         await logout(mockRequest, mockResponse);
 
         expect(mockResponse.status).toHaveBeenCalledWith(503);
@@ -364,7 +371,7 @@ describe('User Authentication Controller', () => {
         mockRequest.cookies = { token };
 
         jwt.decode.mockReturnValueOnce({
-          _id: '123',
+          _id: '1',
           exp: Math.floor(Date.now() / 1000) + 3600
         });
 
@@ -381,18 +388,18 @@ describe('User Authentication Controller', () => {
     describe('Happy Path - Successful Profile Deletion', () => {
       it('should delete user profile', async () => {
         mockRequest.result = {
-          _id: '123',
-          firstName: 'John',
-          emailId: 'john@example.com'
+          _id: '1',
+          firstName: 'Yash', // Capital Y
+          emailId: 'yash@gmail.com'
         };
 
         User.findByIdAndDelete.mockResolvedValueOnce({
-          _id: '123'
+          _id: '1'
         });
 
         await deleteProfile(mockRequest, mockResponse);
 
-        expect(User.findByIdAndDelete).toHaveBeenCalledWith('123');
+        expect(User.findByIdAndDelete).toHaveBeenCalledWith('1');
         expect(mockResponse.status).toHaveBeenCalledWith(200);
         expect(mockResponse.send).toHaveBeenCalledWith('Deleted Successfully');
       });
@@ -401,7 +408,7 @@ describe('User Authentication Controller', () => {
     describe('Exception Handling - Deletion Errors', () => {
       it('should handle database error during deletion', async () => {
         mockRequest.result = {
-          _id: '123'
+          _id: '1'
         };
 
         User.findByIdAndDelete.mockRejectedValueOnce(
@@ -417,11 +424,10 @@ describe('User Authentication Controller', () => {
       it('should handle invalid user ID', async () => {
         mockRequest.result = null;
 
-        try {
-          await deleteProfile(mockRequest, mockResponse);
-        } catch (e) {
-          expect(e).toBeDefined();
-        }
+        await deleteProfile(mockRequest, mockResponse);
+
+        expect(mockResponse.status).toHaveBeenCalledWith(500);
+        expect(mockResponse.send).toHaveBeenCalledWith('Internal Server Error');
       });
     });
   });
@@ -431,14 +437,14 @@ describe('User Authentication Controller', () => {
       it('should register admin user', async () => {
         mockRequest.body = {
           firstName: 'Admin',
-          emailId: 'admin@example.com',
-          password: 'AdminPass123!'
+          emailId: 'admin@gmail.com',
+          password: 'Admin@123'
         };
 
         const mockUser = {
           _id: '456',
           firstName: 'Admin',
-          emailId: 'admin@example.com',
+          emailId: 'admin@gmail.com',
           role: 'admin'
         };
 
@@ -450,7 +456,7 @@ describe('User Authentication Controller', () => {
         await adminRegister(mockRequest, mockResponse);
 
         expect(validate).toHaveBeenCalledWith(mockRequest.body);
-        expect(bcrypt.hash).toHaveBeenCalledWith('AdminPass123!', 10);
+        expect(bcrypt.hash).toHaveBeenCalledWith('Admin@123', 10);
         expect(User.create).toHaveBeenCalled();
         expect(mockResponse.status).toHaveBeenCalledWith(201);
       });
