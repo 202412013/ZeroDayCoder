@@ -111,7 +111,8 @@ describe('Redux Store Configuration', () => {
       const listener = () => {
         // This would be called when state changes
         expect(true).toBe(true);
-        done();
+        // Actually trigger a state change!
+        resolve();
       };
 
       const unsubscribe = store.subscribe(listener);
@@ -119,7 +120,8 @@ describe('Redux Store Configuration', () => {
       // In a real scenario, dispatching an action would trigger the listener
       // For now, we just verify the subscription works
       unsubscribe();
-      done();
+      // Actually trigger a state change!
+    store.dispatch({ type: 'DUMMY_ACTION' }); // or any real action
     });
   });
 
