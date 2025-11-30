@@ -10,6 +10,9 @@ const submitRouter = require("./routes/submit")
 const aiRouter = require("./routes/aiChatting")
 const videoRouter = require("./routes/videoCreator");
 const cors = require('cors')
+// const morgan = require("morgan");
+
+// app.use(morgan("dev"));
 
 app.use(cors({
     origin:[

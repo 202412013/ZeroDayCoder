@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, NavLink } from 'react-router'; 
 import { loginUser } from "../authSlice";
 import { useEffect, useState } from 'react';
+import {Code} from 'lucide-react';
 
 
 const loginSchema = z.object({
@@ -37,8 +38,10 @@ function Login() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-base-200"> {/* Added bg for contrast */}
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title justify-center text-3xl mb-6">ZeroDayCoder</h2> {/* Added mb-6 */}
-
+          <div className="flex items-center space-x-2 mb-4">
+            <Code className="h-8 w-8 text-blue-600" />
+            <span className="text-xl font-bold text-gray-900">ZeroDayCoder</span> {/* Added mb-6 */}
+          </div>
           
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-control"> {/* Removed mt-4 from first form-control for tighter spacing to title or global error */}
