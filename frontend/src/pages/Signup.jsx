@@ -7,11 +7,15 @@ import { useNavigate, NavLink } from 'react-router';
 import { registerUser } from '../authSlice';
 
 const signupSchema = z.object({
-  firstName: z.string().min(3, "Minimum character should be 3"),
+  firstName: z.string().min(3, "Minimum character should be 3").regex(/^[A-Za-z\s]+$/, "Name can only contain letters and spaces"),
   emailId: z.string().email("Invalid Email"),
-  password: z.string().min(8, "Password is too weak")
+  password: z.string()
+  .min(8, "Password must be at least 8 characters long")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number")
+  .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character")
 });
-
+ 
 function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
@@ -43,7 +47,7 @@ function Signup() {
             {/* First Name Field */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">First Name</span>
+                <span className="label-text">Name</span>
               </label>
               <input
                 type="text"
@@ -63,7 +67,7 @@ function Signup() {
               </label>
               <input
                 type="email"
-                placeholder="john@example.com"
+                placeholder="john@email.com"
                 className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''}`} // Ensure w-full for consistency
                 {...register('emailId')}
               />
